@@ -2738,7 +2738,7 @@ vertical-align: -.125em;
 
 <p>This notebook describes the temporal fusion transformers <span class="citation" data-cites="lim2021temporal">(<a href="#ref-lim2021temporal" role="doc-biblioref">Lim et al. 2021</a>)</span> architecture, and ports it over to keras 3 while making some punctual improvements, including making the notation closer to the paper math.</p>
 <p>The original repository is: https://github.com/google-research/google-research/tree/master/tft.</p>
-<div class="cell" data-execution_count="2">
+<div class="cell" data-execution_count="1">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> __future__ <span class="im">import</span> annotations</span>
@@ -2753,7 +2753,7 @@ vertical-align: -.125em;
 <pre><code>Using TensorFlow backend</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>2023-11-01 17:53:52.256766: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+<pre><code>2023-11-17 08:17:29.594949: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
 To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.</code></pre>
 </div>
 </div>
@@ -2829,7 +2829,7 @@ To enable the following instructions: AVX2 FMA, in other operations, rebuild Ten
 \mathbb{Y} = \phi(\mathbf{W} x + \mathbf{b}),
 \tag{1}\]</span></span></p>
 <p>where <span class="math inline">\(x\)</span> is the input to <code>linear_layer()(x)</code>, <span class="math inline">\(\mathbb{Y}\)</span> is the output of <code>linear_layer()(x)</code>, <span class="math inline">\(\phi\)</span> is an activation function (or no activation function is <code>activation</code> is <code>None</code>), <span class="math inline">\(\mathbf{W} \in \mathbf{R}^{(d_{\text{size}} \times d_{\text{inputs}})}\)</span> is a matrix of weights and <span class="math inline">\(\mathbf{b} \in \mathbf{R}^{d_{size}}\)</span> is a vector of biases. Importantly, <span class="math inline">\(\mathbf{W}\)</span> and <span class="math inline">\(\mathbf{b}\)</span> are indexed with <span class="math inline">\(_{\omega}\)</span> to denote weight-sharing when the layer is time-distributed.</p>
-<div class="cell" data-execution_count="4">
+<div class="cell" data-execution_count="2">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> linear_layer(size:<span class="bu">int</span>, <span class="co"># Output size</span></span>
@@ -2852,7 +2852,7 @@ To enable the following instructions: AVX2 FMA, in other operations, rebuild Ten
 </section>
 <section id="example-usage" class="level4" data-number="3.2.1.2">
 <h4 data-number="3.2.1.2" class="anchored" data-anchor-id="example-usage"><span class="header-section-number">3.2.1.2</span> Example usage</h4>
-<div class="cell" data-execution_count="6">
+<div class="cell" data-execution_count="4">
 <details open>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">2</span></span>
@@ -2872,12 +2872,12 @@ To enable the following instructions: AVX2 FMA, in other operations, rebuild Ten
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> linear_td_false(x).shape <span class="op">==</span> [batch_size, n_timesteps, layer_size]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stderr">
-<pre><code>2023-11-01 17:54:09.459754: I tensorflow/core/common_runtime/pluggable_device/pluggable_device_factory.cc:303] Could not identify NUMA node of platform GPU ID 0, defaulting to 0. Your kernel may not have been built with NUMA support.
-2023-11-01 17:54:09.459833: I tensorflow/core/common_runtime/pluggable_device/pluggable_device_factory.cc:269] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 0 MB memory) -&gt; physical PluggableDevice (device: 0, name: METAL, pci bus id: &lt;undefined&gt;)</code></pre>
+<pre><code>2023-11-11 00:53:16.491902: I tensorflow/core/common_runtime/pluggable_device/pluggable_device_factory.cc:303] Could not identify NUMA node of platform GPU ID 0, defaulting to 0. Your kernel may not have been built with NUMA support.
+2023-11-11 00:53:16.491964: I tensorflow/core/common_runtime/pluggable_device/pluggable_device_factory.cc:269] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 0 MB memory) -&gt; physical PluggableDevice (device: 0, name: METAL, pci bus id: &lt;undefined&gt;)</code></pre>
 </div>
 </div>
 <p>Note that the time-distributed linear layer results in the same weights being applied to each time step:</p>
-<div class="cell" data-execution_count="7">
+<div class="cell" data-execution_count="5">
 <details open>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.ones((<span class="dv">1</span>, n_timesteps, n_features))</span>
@@ -2889,18 +2889,18 @@ To enable the following instructions: AVX2 FMA, in other operations, rebuild Ten
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>linear_td_true(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="7">
+<div class="cell-output cell-output-display" data-execution_count="5">
 <pre><code>&lt;tf.Tensor: shape=(1, 5, 8), dtype=float32, numpy=
-array([[[ 0.5174557 ,  1.6560051 , -0.4955554 ,  1.2731267 ,
-          0.6194407 ,  1.1131446 , -0.12775654,  1.6262844 ],
-        [ 0.5174557 ,  1.6560051 , -0.4955554 ,  1.2731267 ,
-          0.6194407 ,  1.1131446 , -0.12775654,  1.6262844 ],
-        [ 0.5174557 ,  1.6560051 , -0.4955554 ,  1.2731267 ,
-          0.6194407 ,  1.1131446 , -0.12775654,  1.6262844 ],
-        [ 0.5174557 ,  1.6560051 , -0.4955554 ,  1.2731267 ,
-          0.6194407 ,  1.1131446 , -0.12775654,  1.6262844 ],
-        [ 0.5174557 ,  1.6560051 , -0.4955554 ,  1.2731267 ,
-          0.6194407 ,  1.1131446 , -0.12775654,  1.6262844 ]]],
+array([[[-1.4553039 ,  2.3747497 ,  0.94341403, -0.49993476,
+          0.33138263,  2.2269092 ,  1.869899  , -0.20466915],
+        [-1.4553039 ,  2.3747497 ,  0.94341403, -0.49993476,
+          0.33138263,  2.2269092 ,  1.869899  , -0.20466915],
+        [-1.4553039 ,  2.3747497 ,  0.94341403, -0.49993476,
+          0.33138263,  2.2269092 ,  1.869899  , -0.20466915],
+        [-1.4553039 ,  2.3747497 ,  0.94341403, -0.49993476,
+          0.33138263,  2.2269092 ,  1.869899  , -0.20466915],
+        [-1.4553039 ,  2.3747497 ,  0.94341403, -0.49993476,
+          0.33138263,  2.2269092 ,  1.869899  , -0.20466915]]],
       dtype=float32)&gt;</code></pre>
 </div>
 </div>
@@ -2912,7 +2912,7 @@ array([[[ 0.5174557 ,  1.6560051 , -0.4955554 ,  1.2731267 ,
 <p>Embeds categorical variables</p>
 </blockquote>
 <p>Most categorical economic variables do not have more than a few dozen different categories, unlike in natural language processing, where vocabulary sizes are counted in the tens of thousands. For this reason, the default number of categories is set at 50. However, this can be adjusted by the user in case there are more unique categories in a variable.</p>
-<div class="cell" data-execution_count="15">
+<div class="cell" data-execution_count="6">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cat_embed(</span>
@@ -2987,7 +2987,7 @@ array([[[ 0.5174557 ,  1.6560051 , -0.4955554 ,  1.2731267 ,
 <h4 data-number="3.2.2.2" class="anchored" data-anchor-id="example-usage-1"><span class="header-section-number">3.2.2.2</span> Example usage</h4>
 <p>In the code below, the array <code>x</code> is created with distinct integers that stand for different categories.</p>
 <p>Also, for pedagogical purposes the example code below uses the same number of different categories as potentially exist in the data.</p>
-<div class="cell" data-execution_count="17">
+<div class="cell" data-execution_count="8">
 <details open>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">3</span></span>
@@ -2999,17 +2999,17 @@ array([[[ 0.5174557 ,  1.6560051 , -0.4955554 ,  1.2731267 ,
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># inspecting the first batch below; note that same integers have the same embeddings</span></span>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">0</span>], cat_embed(x, hidden_layer_size<span class="op">=</span>hidden_layer_size, n_categories<span class="op">=</span>num_diff_categories)[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="17">
-<pre><code>(array([0, 4, 3, 0, 4, 0, 2, 0]),
+<div class="cell-output cell-output-display" data-execution_count="8">
+<pre><code>(array([1, 2, 1, 3, 4, 0, 3, 1]),
  &lt;tf.Tensor: shape=(8, 4), dtype=float32, numpy=
- array([[-0.02224629,  0.03718537, -0.03198783,  0.01943276],
-        [ 0.0154066 ,  0.04369405, -0.04818568,  0.02172988],
-        [-0.02629623,  0.00226355, -0.00559323, -0.03916335],
-        [-0.02224629,  0.03718537, -0.03198783,  0.01943276],
-        [ 0.0154066 ,  0.04369405, -0.04818568,  0.02172988],
-        [-0.02224629,  0.03718537, -0.03198783,  0.01943276],
-        [-0.00498669, -0.02488241, -0.04421346,  0.04346621],
-        [-0.02224629,  0.03718537, -0.03198783,  0.01943276]],
+ array([[-0.0486316 , -0.02073463, -0.0466623 , -0.04510132],
+        [ 0.04641305, -0.04722646, -0.01275512,  0.03438142],
+        [-0.0486316 , -0.02073463, -0.0466623 , -0.04510132],
+        [-0.01647544, -0.03627455, -0.02408754,  0.03972164],
+        [-0.00438094, -0.03070756,  0.02959496, -0.00487646],
+        [ 0.01229518,  0.01121847, -0.03355275,  0.00503302],
+        [-0.01647544, -0.03627455, -0.02408754,  0.03972164],
+        [-0.0486316 , -0.02073463, -0.0466623 , -0.04510132]],
        dtype=float32)&gt;)</code></pre>
 </div>
 </div>
@@ -3035,7 +3035,7 @@ array([[[ 0.5174557 ,  1.6560051 , -0.4955554 ,  1.2731267 ,
 <li>Layer normalisation uses the same computation both during training and inference times, and is particularly suitable for time series</li>
 </ul></li>
 </ul>
-<div class="cell" data-execution_count="18">
+<div class="cell" data-execution_count="11">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_and_norm(</span>
@@ -3082,7 +3082,7 @@ array([[[ 0.5174557 ,  1.6560051 , -0.4955554 ,  1.2731267 ,
 </section>
 <section id="example-usage-2" class="level4" data-number="3.2.3.2">
 <h4 data-number="3.2.3.2" class="anchored" data-anchor-id="example-usage-2"><span class="header-section-number">3.2.3.2</span> Example usage</h4>
-<div class="cell" data-execution_count="20">
+<div class="cell" data-execution_count="13">
 <details open>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">3</span></span>
@@ -3099,7 +3099,7 @@ array([[[ 0.5174557 ,  1.6560051 , -0.4955554 ,  1.2731267 ,
 </details>
 </div>
 <p>Mean values of the normalised layer should be around 0:</p>
-<div class="cell" data-execution_count="21">
+<div class="cell" data-execution_count="14">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;mean of x1 units at each batch X time step: &quot;</span>, x1.mean(axis<span class="op">=-</span><span class="dv">1</span>), <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
@@ -3107,31 +3107,28 @@ array([[[ 0.5174557 ,  1.6560051 , -0.4955554 ,  1.2731267 ,
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;mean of sum of x1 and x2:&quot;</span>), x1x2.numpy().mean(axis<span class="op">=-</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>mean of x1 units at each batch X time step:  [[ 1.62867189e-01 -5.20242678e-04  2.37227286e-01 -7.08307502e-02
-   1.96568600e-01]
- [ 1.50988991e-03  4.91467711e-02  1.05420586e-02  9.67770761e-02
-   7.31379506e-03]
- [-1.40437273e-01 -1.13507100e-01  8.13932979e-05 -5.92913000e-02
-  -3.62595664e-02]] 
+<pre><code>mean of x1 units at each batch X time step:  [[-0.04751016  0.02280264  0.04433613 -0.10069982  0.22594426]
+ [-0.13685796 -0.02823071 -0.27361885 -0.12252277 -0.15567896]
+ [-0.00825379 -0.06895574  0.06024043 -0.06587613 -0.15253482]] 
 
-mean of x2 units at each batch X time step:  [[-0.16694632  0.03149349 -0.03452619 -0.09893761 -0.02317731]
- [-0.15482835 -0.05169479  0.0473294   0.05962158 -0.12738778]
- [ 0.10849998  0.0729214   0.17383777 -0.04959774 -0.19954893]] 
+mean of x2 units at each batch X time step:  [[-0.00842115 -0.01157556 -0.16337221  0.04494611 -0.05126099]
+ [-0.09781511  0.1398926   0.13882505  0.03923091 -0.02725268]
+ [ 0.03908085 -0.12458811 -0.12538322  0.11690082 -0.02078722]] 
 
 mean of sum of x1 and x2:</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="14">
 <pre><code>(None,
- array([[ 2.38418574e-09,  1.49011614e-09,  2.38418574e-09,
-         -1.93715088e-09, -1.49011612e-08],
-        [-3.57627861e-09, -7.15255721e-09,  2.86102289e-08,
-         -1.07288365e-08, -3.57627861e-09],
-        [-5.96046457e-09, -1.13248824e-08,  6.25848751e-09,
-         -1.54972071e-08, -2.38418574e-09]], dtype=float32))</code></pre>
+ array([[ 6.2584875e-09, -2.4139881e-08, -1.5199184e-08, -8.3446503e-09,
+          1.4305114e-08],
+        [-2.3841857e-09,  7.1525572e-09, -1.5497207e-08, -2.2649765e-08,
+          1.7881394e-08],
+        [-6.2584875e-09,  2.5629998e-08, -5.6624412e-09,  7.1525572e-09,
+         -1.9222497e-08]], dtype=float32))</code></pre>
 </div>
 </div>
 <p>Standard deviation (for the normalised output it should be around 1):</p>
-<div class="cell" data-execution_count="22">
+<div class="cell" data-execution_count="15">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;std of x1 units at each batch X time step: &quot;</span>, x1.std(axis<span class="op">=-</span><span class="dv">1</span>), <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
@@ -3139,21 +3136,21 @@ mean of sum of x1 and x2:</code></pre>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;std of normalised sum of x1 and x2:&quot;</span>), x1x2.numpy().std(axis<span class="op">=-</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>std of x1 units at each batch X time step:  [[0.97436015 0.84556404 1.01882819 1.05917893 0.95243431]
- [0.96974259 0.95563314 0.91505377 0.95916221 0.9693254 ]
- [1.02360183 0.97176856 0.96241885 1.12533782 1.074521  ]] 
+<pre><code>std of x1 units at each batch X time step:  [[1.00561648 1.08549731 1.02320014 0.97326756 0.97133372]
+ [0.87934497 0.96748986 1.05275233 0.94479063 0.92948632]
+ [0.93161042 0.94425452 1.11939525 1.03929579 1.00760397]] 
 
-std of x2 units at each batch X time step:  [[1.0339238  1.08623854 1.0403461  1.02268716 1.02395318]
- [1.08039821 0.97877904 1.00923626 1.05980864 0.98322348]
- [0.98447929 0.9653607  0.96845796 1.07022414 1.09956215]] 
+std of x2 units at each batch X time step:  [[0.94111405 0.91629985 1.04135107 1.04231762 0.85889037]
+ [0.9936814  1.03064745 0.94227668 0.95253092 0.97884868]
+ [1.07084924 0.99536778 0.98981192 1.10107316 1.02513429]] 
 
 std of normalised sum of x1 and x2:</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="22">
+<div class="cell-output cell-output-display" data-execution_count="15">
 <pre><code>(None,
- array([[0.99977165, 0.9997648 , 0.9997403 , 0.9997601 , 0.99972826],
-        [0.99971926, 0.9997296 , 0.9997439 , 0.99973977, 0.9997208 ],
-        [0.9997514 , 0.9997672 , 0.9997278 , 0.9998098 , 0.99978715]],
+ array([[0.9997207 , 0.9997652 , 0.9997863 , 0.99973744, 0.999671  ],
+        [0.99972874, 0.99973494, 0.9997399 , 0.99970484, 0.99966913],
+        [0.9997655 , 0.99973947, 0.99976283, 0.9997578 , 0.99974656]],
        dtype=float32))</code></pre>
 </div>
 </div>
