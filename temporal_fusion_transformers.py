@@ -115,17 +115,6 @@ df_target_12m_pct = (100 * df_target.pct_change(12))
 df_target_1m_pct = (100 * df_target.pct_change(1))
 
 
-# In[7]:
-
-
-#| fig-align: center
-
-ax = df_target_12m_pct.plot(figsize=(20, 6))
-ax.axhline(y=0, color='black')
-ax.set_title("Inflation", fontsize=16, fontstyle='italic')
-plt.show()
-
-
 # ## Date features
 # 
 # In addition to data provided by the user, the model automatically loads categorical features related to each date.
@@ -1493,6 +1482,19 @@ class TFT(keras.Model):
             ) 
             for i in range(output_len - 1)
         ]
+
+    def get_config(self):
+        config = super().get_config()
+        config.update(
+            {
+                "quantiles": self.quantiles,
+                "d_model": self.d_model,
+                "output_size": self.output_size,
+                "n_head": self.n_head,
+                "dropout_rate" :self.dropout_rate
+            }
+        )
+        return config
     
     def call(
         self,
