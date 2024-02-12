@@ -65,7 +65,7 @@ from tqdm import tqdm
 
 #| warning: false
 
-df_all = pd.read_csv("data/nowcast_dataset_complete_Jan-24-2024.csv")
+df_all = pd.read_csv("../data/nowcast_dataset_complete_Jan-24-2024.csv")
 df_all['index'] = pd.to_datetime(df_all['index'])
 
 
@@ -335,7 +335,8 @@ def sample_nowcasting_data(
     context_length:int=365, # context length in number of daily observations (leads to padding if not reached in sampling)
     num_months:int=12, # number of months (1 is current month)
     sampled_day:None|str=None, # None (default) randomly chooses a date; otherwise, YYYY-MM-DD date selected a date
-    country:None|str=None # None (default) randomly chooses a country; otherwise, 2-digit ISO code selectes a country
+    country:None|str=None, # None (default) randomly chooses a country; otherwise, 2-digit ISO code selectes a country
+    skip_y:bool=False # Whether to skip generating y values (required for prediction)
 ):
 
     # first step: determine the valid dates for sampling
@@ -384,10 +385,14 @@ def sample_nowcasting_data(
         else [(sampled_day + relativedelta(months=d)).replace(day=1) for d in range(num_months)]
     X_fut = date_features(pd.DataFrame(index=target_month).index, is_monthly=True).values
 
+    X_cat_stat = keras.ops.expand_dims(X_cat_stat, axis=1)
     # create the target variables
+    if skip_y:
+        return [X_cont_hist, X_cat_hist, X_fut, X_cat_stat], None
+    
     y = df_target.loc[target_month, country_dec_dict[int(X_cat_stat[0])]].values
     
-    X_cat_stat = keras.ops.expand_dims(X_cat_stat, axis=1)
+
     return [X_cont_hist, X_cat_hist, X_fut, X_cat_stat], y
 
 
@@ -1364,6 +1369,7 @@ class TFT(keras.Model):
         output_size:int=1, # How many periods to nowcast/forecast?
         n_head:int=4,
         dropout_rate:float=0.1,
+        skip_attention:bool=False, # Build a partial TFT without attention
         **kwargs
     ):
         super(TFT, self).__init__(**kwargs)
@@ -1372,6 +1378,7 @@ class TFT(keras.Model):
         self.output_size = output_size
         self.n_head = n_head
         self.dropout_rate = dropout_rate
+        self.skip_attention = skip_attention
 
     def build(self, input_shape):
         super(TFT, self).build(input_shape)
@@ -1430,33 +1437,34 @@ class TFT(keras.Model):
             use_time_distributed=True,
             name="static_context_enrichment"
         )
-        self.attention = InterpretableMultiHeadAttention(
-            n_head=4,
-            d_model=self.d_model,
-            dropout_rate=self.dropout_rate,
-            name="attention_heads"
-        )
-        self.attention_gating = GatedLinearUnit(
-            d_model=self.d_model,
-            dropout_rate=self.dropout_rate,
-            use_time_distributed=True,
-            activation=None,
-            name="attention_gating"
-        )
-        self.attn_grn = GatedResidualNetwork(
-            d_model=self.d_model,
-            dropout_rate=self.dropout_rate,
-            use_time_distributed=True,
-            name="output_nonlinear_processing"
-        )
-        self.final_skip = GatedLinearUnit(
-            d_model=self.d_model,
-            dropout_rate=self.dropout_rate,
-            use_time_distributed=True,
-            activation=None,
-            name="final_skip_connection"
-        )
-        self.add = layers.Add()
+        if not self.skip_attention:
+            self.attention = InterpretableMultiHeadAttention(
+                n_head=4,
+                d_model=self.d_model,
+                dropout_rate=self.dropout_rate,
+                name="attention_heads"
+            )
+            self.attention_gating = GatedLinearUnit(
+                d_model=self.d_model,
+                dropout_rate=self.dropout_rate,
+                use_time_distributed=True,
+                activation=None,
+                name="attention_gating"
+            )
+            self.attn_grn = GatedResidualNetwork(
+                d_model=self.d_model,
+                dropout_rate=self.dropout_rate,
+                use_time_distributed=True,
+                name="output_nonlinear_processing"
+            )
+            self.final_skip = GatedLinearUnit(
+                d_model=self.d_model,
+                dropout_rate=self.dropout_rate,
+                use_time_distributed=True,
+                activation=None,
+                name="final_skip_connection"
+            )
+            self.add = layers.Add()
         self.l_norm = layers.LayerNormalization()
         
         self.flat = layers.Flatten(name="flatten")
@@ -1491,7 +1499,8 @@ class TFT(keras.Model):
                 "d_model": self.d_model,
                 "output_size": self.output_size,
                 "n_head": self.n_head,
-                "dropout_rate" :self.dropout_rate
+                "dropout_rate" :self.dropout_rate,
+                "skip_attention":  self.skip_attention,
             }
         )
         return config
@@ -1544,20 +1553,23 @@ class TFT(keras.Model):
             additional_context=keras.ops.expand_dims(c_e, axis=1),
             training=training
         )
-        mask = get_decoder_mask(enriched)
-        attn_output, self_attn = self.attention(
-            q=enriched,
-            k=enriched,
-            v=enriched,
-            mask=mask,
-            training=training
-        )
-        attn_output, _ = self.attention_gating(attn_output)
-        output = self.add([enriched, attn_output])
-        output = self.l_norm(output)
-        output, _ = self.attn_grn(output)
-        output, _ = self.final_skip(output)
-        output = self.add([features, output])
+        if not self.skip_attention:
+            mask = get_decoder_mask(enriched)
+            attn_output, self_attn = self.attention(
+                q=enriched,
+                k=enriched,
+                v=enriched,
+                mask=mask,
+                training=training
+            )
+            attn_output, _ = self.attention_gating(attn_output)
+            output = self.add([enriched, attn_output])
+            output = self.l_norm(output)
+            output, _ = self.attn_grn(output)
+            output, _ = self.final_skip(output)
+            output = self.add([features, output])
+        else:
+            output = enriched
         output = self.l_norm(output)
         
         # Base quantile output

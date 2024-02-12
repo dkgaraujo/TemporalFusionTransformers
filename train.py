@@ -17,8 +17,8 @@ from mlflow_utils import add_tag_to_active_run, get_or_create_experiment
 def main():
     d_model = 8
     dropout_rate = 0.2
-    learning_rate = 0.02
-    epochs=10
+    learning_rate = 0.01
+    epochs=50
     n_samples = 1000
     start_date_train=pd.Timestamp("1980-01-01")
     end_date_train=pd.Timestamp("2018-01-01")
