@@ -1439,7 +1439,7 @@ class TFT(keras.Model):
         )
         if not self.skip_attention:
             self.attention = InterpretableMultiHeadAttention(
-                n_head=4,
+                n_head=self.n_head,
                 d_model=self.d_model,
                 dropout_rate=self.dropout_rate,
                 name="attention_heads"
